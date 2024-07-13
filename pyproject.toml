@@ -1,0 +1,40 @@
+[project]
+name = "transformix"
+version = "1.0.0"
+description = "transformix - train Protein LLM in no time"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+
+authors = [
+  {name = "Khairi Abidi"}
+]
+
+maintainers = [
+  {name = "Khairi Abidi", email = "khairi.abidi@majesteye.com" }
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Programming Language :: Python :: 3.10",
+]
+
+dependencies = [
+  "torch>=2.0.0",
+  "torchvision",
+  "torchtext",
+  "transformers",
+  "ipython",
+  "einops",
+  "biotite",
+  "msgpack-numpy",
+  "biopython",
+  "scikit-learn",
+  "brotli",
+  "attrs",
+  "pandas",
+]
+
+[tool.setuptools]
+packages = ["transformix"]
