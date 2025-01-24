@@ -1,0 +1,87 @@
+{
+    "model": {
+        "model_name": "khairi/codex_t8_26M_38k",
+        "lr": 1e-3,
+        "beta1": 0.99,
+        "beta2": 0.98,
+        "eps": 1e-12,
+        "num_training_steps": 50000,
+        "num_warmup_steps": 1000,
+        "freeze": false,
+        "mask_percentage": 0.40,
+        "initial_mask_percentage": 0.10,
+        "config": null,
+        "ckpt_path": null,
+        "tokenizer_dir": "khairi/codex_t8_26M_38k",
+        "max_length": 512,
+        "position_embedding_type": "rotary"
+    },
+    "datamodule": {
+        "repo_id": "khairi/uniprot-swissprot",
+        "tokenizer": "khairi/codex_t8_26M_38k",
+        "batch_size": 2,
+        "num_proc": 4,
+        "max_sequence_length": 512,
+        "sequence_column_name": "Sequence"
+    },
+    "callbacks": [
+        {
+            "name": "ModelCheckpoint",
+            "classPath": "pytorch_lightning.callbacks.ModelCheckpoint",
+            "args": {
+                "dirpath": "experim/checkpoints",
+                "filename": null,
+                "monitor": "val_loss",
+                "save_top_k": 3,
+                "mode": "min",
+                "verbose": true,
+                "save_last": true
+            }
+        },
+        {
+            "name": "LearningRateMonitor",
+            "classPath": "pytorch_lightning.callbacks.LearningRateMonitor",
+            "args": {
+                "logging_interval": "step"
+            }
+        },
+        {
+            "name": "Timer",
+            "classPath": "pytorch_lightning.callbacks.Timer",
+            "args": {
+                "duration": "00:24:00:00"
+            }
+        }
+    ],
+    "loggers": [
+        {
+            "name": "WandbLogger",
+            "classPath": "pytorch_lightning.loggers.WandbLogger",
+            "args": {
+                "save_dir": "experim",
+                "offline": false,
+                "name": "",
+                "project": "Codex",
+                "entity": "flursky",
+                "group": null,
+                "notes": "Masked language model",
+                "tags": ["mlm", "pretraining", "swissprot"]
+            }
+        }
+    ],
+    "trainer": {
+        "accelerator": "gpu",
+        "devices": 1,
+        "num_nodes": 1,
+        "accumulate_grad_batches": 1,
+        "gradient_clip_val": 0.0,
+        "gradient_clip_algorithm": "norm",
+        "precision": "16-mixed",
+        "max_steps": 500,
+        "limit_val_batches": 10,
+        "num_sanity_val_steps": 2,
+        "max_time": null,
+        "val_check_interval": 500,
+        "log_every_n_steps": 500
+    }
+}

@@ -1,0 +1,62 @@
+[project]
+name = "transformix"
+readme = "README.md"
+description = "Language models for Biological Sequence Transformation and Evolutionary Representation."
+authors = [{name = "Khairi Abidi", email = "khairi.abidi@majesteye.com"}]
+dynamic = ["version", "dependencies", "optional-dependencies"]
+requires-python = ">=3.9"
+
+[build-system]
+requires = ["setuptools >= 65", "setuptools_scm[toml]>=6.2"]
+build-backend = 'setuptools.build_meta'
+
+[project.scripts]
+transformix-mlm = "transformix.cmdline:mlm"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+transformix = ["*.txt", "*.json", "*.yaml"]
+"transformix.assets" = ["**/*.txt", "**/*.json", "**/*.yaml"]
+
+[tool.setuptools_scm]
+search_parent_directories = true
+version_scheme = "no-guess-dev"
+fallback_version = "0.0.0"
+local_scheme = "no-local-version" # see https://github.com/pypa/setuptools-scm/issues/455
+
+[tool.ruff]
+line-length = 120
+exclude = [
+    "scripts",
+    "notebooks",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+]
+
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "B905",  # requires python >= 3.10
+    "B007",  # unused-loop-control-variable
+    "E741",  # ambiguous-variable-name
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401", # MODULE IMPORTED BUT UNUSED
+]
+"tests/**/*.py" = [
+    "D"
+]
