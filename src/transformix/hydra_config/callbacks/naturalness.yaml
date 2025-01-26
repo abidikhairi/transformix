@@ -1,3 +1,0 @@
-naturalness:
-  _target_: lobster.callbacks.NaturalnessCallback
-  run_every_n_epochs: 1

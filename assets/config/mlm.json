@@ -1,6 +1,6 @@
 {
     "model": {
-        "model_name": "khairi/codex_t8_26M_38k",
+        "model_name": "khairi/codex_t8_27M_38k",
         "lr": 1e-3,
         "beta1": 0.99,
         "beta2": 0.98,
@@ -12,13 +12,13 @@
         "initial_mask_percentage": 0.10,
         "config": null,
         "ckpt_path": null,
-        "tokenizer_dir": "khairi/codex_t8_26M_38k",
+        "tokenizer_dir": "khairi/codex_t8_27M_38k",
         "max_length": 512,
         "position_embedding_type": "rotary"
     },
     "datamodule": {
         "repo_id": "khairi/uniprot-swissprot",
-        "tokenizer": "khairi/codex_t8_26M_38k",
+        "tokenizer": "khairi/codex_t8_27M_38k",
         "batch_size": 2,
         "num_proc": 4,
         "max_sequence_length": 512,

@@ -1,4 +1,0 @@
-_target_: lightning.pytorch.seed_everything
-
-seed: 0xf1eece
-workers: true
