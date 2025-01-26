@@ -39,7 +39,7 @@ def mlm(args=None):
 
     trainer.fit(model, data_module)
     
-    trainer.model.push_to_hub(model_id)
+    trainer.model.model.push_to_hub(model_id)
 
 
 def parse_experiment_config(experiment_config_path: str) -> Dict[str, Any]:

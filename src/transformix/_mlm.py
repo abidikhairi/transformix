@@ -67,7 +67,6 @@ class TransformixPMLM(pl.LightningModule):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=False)
         self.model = LMBaseForMaskedLM.from_pretrained(model_name)
-        
 
         if self._initial_mask_percentage is not None:
             assert self._initial_mask_percentage > self._mask_percentage
@@ -191,63 +190,6 @@ class TransformixPMLM(pl.LightningModule):
         )
 
         return df
-
-    def naturalness(self, sequences: Iterable[str]) -> torch.Tensor:
-        out = [
-            self._naturalness_single_sequence(
-                seq,
-                batch_size=32,
-            )
-            for seq in sequences
-        ]
-
-        return torch.tensor(out)
-
-    def _naturalness_single_sequence(
-            self,
-            sequence: str,
-            batch_size: int = 32,
-            return_probs: bool = False,
-    ) -> tuple[float, Optional[tuple[torch.Tensor, torch.Tensor]]]:
-        N = len(sequence)
-
-        # Tokenize full sequence
-        ref_seq = " ".join(sequence)
-        ref_seq_indices = torch.tensor(self.tokenizer.encode(ref_seq)) - 4
-        # -4 to align since first tokens are special, BERT-related.
-
-        # Generate full sequence variants with aa's masked one by one, tokenize
-        seqs_masked = [" ".join([aa if j != i else "<mask>" for j, aa in enumerate(sequence)]) for i in range(N)]
-        seqs_mask_encoded = torch.tensor(
-            [self.tokenizer.encode(masked_seq) for masked_seq in seqs_masked],
-            device=self.device,
-        )
-
-        if N < batch_size:
-            batch_size_ = N
-        else:
-            batch_size_ = batch_size
-        with torch.inference_mode():
-            logits = torch.vstack(
-                [
-                    self.model(input_ids=toks.to(self.device))["logits"]
-                    for toks in torch.tensor_split(seqs_mask_encoded, N // batch_size_)
-                ]
-            )
-
-        # raw_log_probs [N, 20]: log probability for each WT amino acid
-        raw_log_probs = torch.nn.functional.log_softmax(logits[:, 1:-1, 4:24], dim=-1)[
-                        torch.arange(N), torch.arange(N), :
-                        ]
-        # sum of log probabilities that the model assigns to the true amino acid in each masked position
-        sum_log_probs = raw_log_probs[torch.arange(N), ref_seq_indices[1:-1]].sum()  # chop off bos/eos
-
-        naturalness_score = (1.0 / torch.exp(-sum_log_probs / N)).item()
-
-        if return_probs:
-            return naturalness_score, (raw_log_probs, ref_seq_indices[1:-1].detach())
-        else:
-            return naturalness_score
 
     def _get_p_mask(self):
         if self._initial_mask_percentage is not None:

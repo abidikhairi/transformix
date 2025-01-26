@@ -4,6 +4,5 @@ from transformix._mlm_configuration import (
 )
 from transformix._mlm import TransformixPMLM
 from transformix.lm_base import (
-    LMBaseForMaskedLM,
-    LMBaseForConditionalMaskedLM
+    LMBaseForMaskedLM
 )
