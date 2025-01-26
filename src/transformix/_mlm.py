@@ -65,43 +65,9 @@ class TransformixPMLM(pl.LightningModule):
         self._max_length = max_length
         self._position_embedding_type = position_embedding_type
 
-        load_pretrained = config is None and model_name not in PMLM_CONFIG_ARGS
-
-        # setup tokenizer
-        if load_pretrained:
-            assert model_name is not None
-
-            # TODO: remove special handling for esm models
-            # TODO: model_name should be a full path (or repo id) to a model checkpoint
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=False)
-        else:
-            # TODO: remove the following code later
-            assert self._tokenizer_dir is not None
-            self.tokenizer = PmlmTokenizer.from_pretrained(tokenizer_dir, do_lower_case=False)
-
-        # setup model
-        if load_pretrained:
-            assert model_name is not None
-
-            # TODO remove special handling for esm models
-            self.model = LMBaseForMaskedLM.from_pretrained(model_name)
-        else:
-            if model_name is not None:
-                # use named config
-                # FIXME this assert fails for some pretrained checkpoints
-                assert config is None, "Cannot supply both `config` and `model_name`"
-                assert model_name in PMLM_CONFIG_ARGS
-                config_args = PMLM_CONFIG_ARGS[model_name]
-                config = PMLMConfig(
-                    attention_probs_dropout_prob=0.1,
-                    mask_token_id=self.tokenizer.mask_token_id,
-                    pad_token_id=self.tokenizer.pad_token_id,
-                    position_embedding_type=self._position_embedding_type,
-                    vocab_size=len(self.tokenizer.get_vocab()),
-                    max_position_embeddings=self._max_length,
-                    **config_args,
-                )
-            self.model = LMBaseForMaskedLM(config)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=False)
+        self.model = LMBaseForMaskedLM.from_pretrained(model_name)
+        
 
         if self._initial_mask_percentage is not None:
             assert self._initial_mask_percentage > self._mask_percentage
