@@ -3,6 +3,8 @@ from typing import Any, Dict, List
 from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.loggers import Logger
 
+from pytorch_lightning import LightningDataModule
+
 
 def instantiate_callbacks(callbacks_cfg: List[Dict[str, Dict[str, Any]]]) -> list[Callback]:
     """Instantiates callbacks from config."""
@@ -49,3 +51,19 @@ def instantiate_loggers(loggers_cfg: List[Dict[str, Dict[str, Any]]]) -> list[Ca
         loggers.append(instance)
         
     return loggers
+
+
+def instantiate_datamodule(datamodule_cfg: Dict[str, Any]) -> LightningDataModule:
+    if not datamodule_cfg or datamodule_cfg == {}:
+        print('[instantiate_datamodule] No datamodule configs found!')
+        raise ValueError('datamodule config is not defined, check you config.json file')
+    class_path = datamodule_cfg['classPath']
+    module_path, class_name = class_path.rsplit(".", 1)
+        
+    module = importlib.import_module(module_path)
+
+    cls = getattr(module, class_name)
+    
+    datamodule: LightningDataModule = cls(**datamodule_cfg['args'])
+
+    return datamodule

@@ -17,12 +17,16 @@
         "position_embedding_type": "rotary"
     },
     "datamodule": {
-        "repo_id": "khairi/uniprot-swissprot",
-        "tokenizer": "khairi/codex_t8_27M_38k",
-        "batch_size": 2,
-        "num_proc": 4,
-        "max_sequence_length": 512,
-        "sequence_column_name": "Sequence"
+        "name": "",
+        "classPath": "",
+        "args": {
+            "repo_id": "khairi/uniprot-swissprot",
+            "tokenizer": "khairi/codex_t8_27M_38k",
+            "batch_size": 2,
+            "num_proc": 4,
+            "max_sequence_length": 512,
+            "sequence_column_name": "Sequence"
+        }
     },
     "callbacks": [
         {

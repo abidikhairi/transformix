@@ -6,9 +6,12 @@ from typing import Any, Dict
 import torch
 import pytorch_lightning as pl
 
-from transformix.data import MLMDataModule
 from transformix import TransformixPMLM
-from transformix.cmdline._utils import instantiate_callbacks, instantiate_loggers
+from transformix.cmdline._utils import (
+    instantiate_callbacks,
+    instantiate_loggers,
+    instantiate_datamodule
+)
 
 
 # Set float32 matmul precision to medium: Laptop GPUs (RTX family) do not support high precision
@@ -25,7 +28,7 @@ def mlm(args=None):
     experiment_config = parse_experiment_config(experiment_config_path)
     model_id = experiment_config['model']['model_name']
     
-    data_module = MLMDataModule(**experiment_config['datamodule'])
+    data_module = instantiate_datamodule(experiment_config['datamodule'])
     model = TransformixPMLM(**experiment_config['model'])
     
     callbacks = instantiate_callbacks(experiment_config['callbacks'])
