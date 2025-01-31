@@ -27,9 +27,6 @@ class TransformixPMLM(pl.LightningModule):
             freeze: bool = False,
             mask_percentage: float = 0.15,
             initial_mask_percentage: Optional[float] = None,
-            config: Union[PretrainedConfig, None] = None,
-            ckpt_path: str = None,
-            tokenizer_dir: Optional[str] = "pmlm_tokenizer",
             max_length: int = 512,
             position_embedding_type: Literal["rotary", "absolute"] = "rotary",
     ):
@@ -57,11 +54,9 @@ class TransformixPMLM(pl.LightningModule):
         self._freeze = freeze
         self._mask_percentage = mask_percentage
         self._initial_mask_percentage = initial_mask_percentage
-        self._ckpt_path = ckpt_path
         self.model_name = model_name
         self._num_training_steps = num_training_steps
         self._num_warmup_steps = num_warmup_steps
-        self._tokenizer_dir = tokenizer_dir
         self._max_length = max_length
         self._position_embedding_type = position_embedding_type
 
@@ -234,9 +229,8 @@ class TransformixPMLM(pl.LightningModule):
         with torch.inference_mode():
             logits = self.model.lm_head(x)
         tokens = [self.tokenizer.decode(logit.argmax(dim=-1)) for logit in logits]
-        aa_toks = list("ARNDCEQGHILKMFPSTWYV")
         tokens = [t.replace(" ", "") for t in tokens]
-        tokens = ["".join([t for t in seq if t in aa_toks]) for seq in tokens]
+       
         return tokens
 
     def sequences_to_latents(self, sequences: list[str]) -> torch.Tensor:

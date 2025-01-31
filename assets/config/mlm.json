@@ -5,10 +5,10 @@
         "beta1": 0.99,
         "beta2": 0.98,
         "eps": 1e-12,
-        "num_training_steps": 500,
+        "num_training_steps": 50000,
         "num_warmup_steps": 1000,
         "freeze": false,
-        "initial_mask_percentage": 0.35,
+        "initial_mask_percentage": 0.30,
         "mask_percentage": 0.15,
         "config": null,
         "ckpt_path": null,
@@ -17,12 +17,12 @@
         "position_embedding_type": "rotary"
     },
     "datamodule": {
-        "name": "",
-        "classPath": "",
+        "name": "CSVDataset",
+        "classPath": "transformix.data.UnsupervisedArrowCSVDataModule",
         "args": {
-            "repo_id": "khairi/uniprot-swissprot",
+            "base_dir": "/ddn/data/fcit/jghazialharbi/data/uniref50",
             "tokenizer": "khairi/codex_t8_27M_38k",
-            "batch_size": 2,
+            "batch_size": 16,
             "num_proc": 4,
             "max_sequence_length": 512,
             "sequence_column_name": "Sequence"
@@ -33,7 +33,7 @@
             "name": "ModelCheckpoint",
             "classPath": "pytorch_lightning.callbacks.ModelCheckpoint",
             "args": {
-                "dirpath": "experim/checkpoints",
+                "dirpath": "/ddn/data/fcit/jghazialharbi/experim/checkpoints",
                 "filename": null,
                 "monitor": "val_loss",
                 "save_top_k": 3,
@@ -59,17 +59,12 @@
     ],
     "loggers": [
         {
-            "name": "WandbLogger",
-            "classPath": "pytorch_lightning.loggers.WandbLogger",
+            "name": "CSVLogger",
+            "classPath": "pytorch_lightning.loggers.CSVLogger",
             "args": {
-                "save_dir": "experim",
-                "offline": false,
-                "name": "",
-                "project": "Codex",
-                "entity": "flursky",
-                "group": null,
-                "notes": "Masked language model",
-                "tags": ["mlm", "pretraining", "swissprot"]
+                "save_dir": "/ddn/data/fcit/jghazialharbi/experim",
+                "name": "codex_t8_mlm",
+                "flush_logs_every_n_steps": 500
             }
         }
     ],
@@ -81,7 +76,7 @@
         "gradient_clip_val": 0.0,
         "gradient_clip_algorithm": "norm",
         "precision": "16-mixed",
-        "max_steps": 500,
+        "max_steps": 50000,
         "limit_val_batches": 10,
         "num_sanity_val_steps": 2,
         "max_time": null,

@@ -26,7 +26,6 @@ from transformers.modeling_utils import (
 from transformers.utils import logging
 
 from .._mlm_configuration import PMLMConfig
-from ._lm_base_heads import LMBaseContactPredictionHead
 from ._utils import (
     BaseModelOutputWithPastAndCrossAttentions,
     BaseModelOutputWithPoolingAndCrossAttentions,

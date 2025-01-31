@@ -27,8 +27,6 @@ class MaskedLMOutput(ModelOutput):
 
             Attentions weights after the attention softmax, used to compute the weighted average in the self-attention
             heads.
-        concepts:(`torch.FloatTensor` of shape `(batch_size, 1, n_concepts)`):
-            Concepts predicted by the model.
 
     """
 
@@ -36,9 +34,7 @@ class MaskedLMOutput(ModelOutput):
     logits: torch.FloatTensor = None
     hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None
     attentions: Optional[Tuple[torch.FloatTensor, ...]] = None
-    concepts: Optional[torch.FloatTensor] = None
     tok_concepts: Optional[torch.FloatTensor] = None
-    cbm_emd: Optional[torch.FloatTensor] = None
     unk_emd: Optional[torch.FloatTensor] = None
     input_emb: Optional[torch.FloatTensor] = None
 
@@ -81,8 +77,6 @@ class BaseModelOutputWithPastAndCrossAttentions(ModelOutput):
 
             Attentions weights of the decoder's cross-attention layer, after the attention softmax, used to compute the
             weighted average in the cross-attention heads.
-        concepts:(`torch.FloatTensor` of shape `(batch_size, 1, n_concepts)`):
-            Concepts predicted by the model.
 
     """
 
@@ -91,9 +85,6 @@ class BaseModelOutputWithPastAndCrossAttentions(ModelOutput):
     hidden_states: Optional[Tuple[torch.FloatTensor, ...]] = None
     attentions: Optional[Tuple[torch.FloatTensor, ...]] = None
     cross_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None
-    concepts: Optional[torch.FloatTensor] = None
-    tok_concepts: Optional[torch.FloatTensor] = None
-    cbm_emd: Optional[torch.FloatTensor] = None
     unk_emd: Optional[torch.FloatTensor] = None
 
 
@@ -137,11 +128,6 @@ class BaseModelOutputWithPoolingAndCrossAttentions(ModelOutput):
             Contains pre-computed hidden-states (key and values in the self-attention blocks and optionally if
             `config.is_encoder_decoder=True` in the cross-attention blocks) that can be used (see `past_key_values`
             input) to speed up sequential decoding.
-
-
-        concepts:(`torch.FloatTensor` of shape `(batch_size, 1, n_concepts)`):
-            Concepts predicted by the model.
-
     """
 
     last_hidden_state: torch.FloatTensor = None
@@ -150,8 +136,6 @@ class BaseModelOutputWithPoolingAndCrossAttentions(ModelOutput):
     past_key_values: Optional[Tuple[Tuple[torch.FloatTensor]]] = None
     attentions: Optional[Tuple[torch.FloatTensor, ...]] = None
     cross_attentions: Optional[Tuple[torch.FloatTensor, ...]] = None
-    concepts: Optional[torch.FloatTensor] = None
     tok_concepts: Optional[torch.FloatTensor] = None
-    cbm_emd: Optional[torch.FloatTensor] = None
     unk_emd: Optional[torch.FloatTensor] = None
     input_emb: Optional[torch.FloatTensor] = None
