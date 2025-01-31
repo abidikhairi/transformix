@@ -8,8 +8,6 @@ from transformers import AutoTokenizer
 from transformers.configuration_utils import PretrainedConfig
 from transformers.optimization import get_linear_schedule_with_warmup
 
-from transformix.tokenization import PmlmTokenizer
-
 from transformix._mlm_configuration import PMLM_CONFIG_ARGS, PMLMConfig
 from transformix.lm_base import LMBaseForMaskedLM
 
