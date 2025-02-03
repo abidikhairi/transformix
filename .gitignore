@@ -33,3 +33,5 @@ experim/
 scripts/
 .idea/
 
+# Configuration files
+assets/config
