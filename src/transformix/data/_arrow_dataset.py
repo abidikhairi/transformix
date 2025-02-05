@@ -29,6 +29,9 @@ class ArrowCSVDataset(TorchDataset):
             path_or_paths=osp.join(self.base_dir, f'{self._split}.{file_ext}'),
             sep=sep 
         )
+        
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token 
 
     def __len__(self):
         return len(self._dataset)

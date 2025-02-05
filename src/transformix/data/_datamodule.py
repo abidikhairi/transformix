@@ -96,7 +96,7 @@ class UnsupervisedArrowCSVDataModule(pl.LightningDataModule):
         self._sep = sep
 
         if isinstance(tokenizer, str):
-            self._tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+            self._tokenizer = AutoTokenizer.from_pretrained(tokenizer, trust_remote_code=True)
         else:
             self._tokenizer = tokenizer
 

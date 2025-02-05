@@ -12,6 +12,7 @@ build-backend = 'setuptools.build_meta'
 
 [project.scripts]
 transformix-mlm = "transformix.cmdline:mlm"
+transformix-distillation = "transformix.cmdline:distillation"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
