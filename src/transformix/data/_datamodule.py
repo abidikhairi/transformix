@@ -87,16 +87,18 @@ class UnsupervisedArrowCSVDataModule(pl.LightningDataModule):
                  max_sequence_length: int = 512,
                  sequence_column_name: str = "Sequence",
                  file_ext: str = 'csv',
-                 sep: str = ','
+                 sep: str = ',',
+                 mlm: bool = True
                  ):
         super().__init__()
 
         self._base_dir = base_dir
         self._file_ext = file_ext
         self._sep = sep
+        self._mlm = mlm
 
         if isinstance(tokenizer, str):
-            self._tokenizer = AutoTokenizer.from_pretrained(tokenizer, trust_remote_code=True)
+            self._tokenizer = AutoTokenizer.from_pretrained(tokenizer, trust_remote_code=True, padding_side='right')
         else:
             self._tokenizer = tokenizer
 
@@ -132,7 +134,8 @@ class UnsupervisedArrowCSVDataModule(pl.LightningDataModule):
             sequence_max_length=self._max_sequence_length,
             sequence_column_name=self._sequence_column_name,
             file_ext=self._file_ext,
-            sep=self._sep
+            sep=self._sep,
+            mlm=self._mlm
         )
 
     def _get_dataloader(self, dataset: HuggingFaceDataset, do_shuffle=False):

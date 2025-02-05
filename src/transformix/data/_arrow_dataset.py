@@ -17,6 +17,7 @@ class ArrowCSVDataset(TorchDataset):
                  sequence_column_name: str = "Sequence",
                  file_ext: str = 'csv',
                  sep: str = ',',
+                 mlm: bool = True
                  ):
         super().__init__()
         self.base_dir: str = base_dir
@@ -30,8 +31,8 @@ class ArrowCSVDataset(TorchDataset):
             sep=sep 
         )
         
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token 
+        if not mlm:    
+            self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def __len__(self):
         return len(self._dataset)
