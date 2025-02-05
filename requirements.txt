@@ -8,3 +8,4 @@ lightning-utilities==0.11.7
 pytorch-lightning==2.4.0
 wandb==0.18.0
 datasets==3.0.0
+pydantic==2.10.2
