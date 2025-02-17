@@ -1,16 +1,20 @@
 # This file is part of the transformix project:
-# It run an MLM model on a dataset
-import argparse
-import json
-from typing import Any, Dict
+# It runs an MLM model on a dataset
 import torch
+from pathlib import Path
+from pydantic import ValidationError
 import pytorch_lightning as pl
 
-from transformix import TransformixPMLM
+from transformix.logging_config import logger
+from transformix import TransformixMLM
+from transformix.config import MaskedLanguageModelTrainerConfig
 from transformix.cmdline._utils import (
     instantiate_callbacks,
     instantiate_loggers,
-    instantiate_datamodule
+    instantiate_datamodule,
+    instantiate_object_from_dict,
+    instantiate_object_from_generic_config,
+    get_cli_args
 )
 
 
@@ -20,47 +24,36 @@ torch.set_float32_matmul_precision('medium')
 
 def mlm(args=None):
     if args is None:
-        args = get_cli_args()
+        args = get_cli_args(description='Runs masked language modeling pipeline')
     
     experiment_config_path = args.experiment_config_path
     
-    print(f'Running MLM with experiment config: {experiment_config_path}')
-    experiment_config = parse_experiment_config(experiment_config_path)
-    model_id = experiment_config['model']['model_name']
+    logger.info(f'Running MLM with experiment config: {experiment_config_path}')
+    logger.info('Paarsing configuration file')
     
-    data_module = instantiate_datamodule(experiment_config['datamodule'])
-    model = TransformixPMLM(**experiment_config['model'])
-    
-    callbacks = instantiate_callbacks(experiment_config['callbacks'])
-    loggers = instantiate_loggers(experiment_config['loggers'])
-    
-    trainer = pl.Trainer(
-        **experiment_config['trainer'],
-        callbacks=callbacks,
-        logger=loggers
-    )
+    try:    
+        trainer_config = MaskedLanguageModelTrainerConfig.model_validate_json(Path(experiment_config_path).read_text())
+        model: TransformixMLM = instantiate_object_from_dict(TransformixMLM, trainer_config.model.model_dump())
+        datamodule = instantiate_object_from_generic_config(trainer_config.datamodule)
+        callbacks = instantiate_callbacks(trainer_config.callbacks)
+        loggers = instantiate_loggers(trainer_config.loggers)
+        
+        trainer_args = trainer_config.trainer.model_dump()
+        
+        trainer = pl.Trainer(
+            **trainer_args,
+            callbacks=callbacks,
+            logger=loggers,
+        )
 
-    trainer.fit(model, data_module)
-    
-    trainer.model.model.push_to_hub(model_id)
-
-
-def parse_experiment_config(experiment_config_path: str) -> Dict[str, Any]:
-    with open(experiment_config_path, 'r') as f:
-        experiment_config = json.load(f)
-    return experiment_config
-
-
-def get_cli_args(args=None):
-    parser = argparse.ArgumentParser(description='Run an MLM model on a dataset')
-
-    parser.add_argument('--experiment-config-path', type=str, required=True, help='Path to the experiment config file (mlm.json)')
-
-    return parser.parse_args() if args is None else parser.parse_args(args)
+        trainer.fit(model, datamodule)
+        
+    except ValidationError as e:
+        logger.error(f'Cannot parse file {experiment_config_path}, due to {e.errors()}')
 
 
 if __name__ == '__main__':
     
-    args = get_cli_args()
+    args = get_cli_args(description='Runs masked language modeling pipeline')
 
     mlm(args)

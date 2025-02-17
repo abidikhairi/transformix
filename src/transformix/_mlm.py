@@ -12,7 +12,7 @@ from transformix._mlm_configuration import PMLM_CONFIG_ARGS, PMLMConfig
 from transformix.lm_base import LMBaseForMaskedLM
 
 
-class TransformixPMLM(pl.LightningModule):
+class TransformixMLM(pl.LightningModule):
     def __init__(
             self,
             model_name: str = None,
@@ -76,8 +76,8 @@ class TransformixPMLM(pl.LightningModule):
         loss, *logging_dicts = self._compute_loss(batch)
         ppl = torch.exp(loss)
         
-        self.log("train_loss", loss, sync_dist=True)
-        self.log("train_perplexity", ppl, sync_dist=True)
+        self.log("train/loss", loss, sync_dist=True)
+        self.log("train/perplexity", ppl, sync_dist=True)
         
         if any(logging_dicts):
             logging_dicts = [{f"train/{k}_ppl": v for k, v in d.items()} for d in logging_dicts]
@@ -85,21 +85,21 @@ class TransformixPMLM(pl.LightningModule):
                 self.log_dict(d, sync_dist=True)
 
         p_mask = self._get_p_mask()
-        self.log("train_p_mask", p_mask, sync_dist=True)
+        self.log("train/p_mask", p_mask, sync_dist=True)
 
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
         loss, *logging_dicts = self._compute_loss(batch)
         ppl = torch.exp(loss)
-        self.log("val_loss", loss, sync_dist=True)
-        self.log("val_perplexity", ppl, sync_dist=True)
+        self.log("valid/loss", loss, sync_dist=True)
+        self.log("valid/perplexity", ppl, sync_dist=True)
         if any(logging_dicts):
             logging_dicts = [{f"val/{k}_ppl": v for k, v in d.items()} for d in logging_dicts]
             for d in logging_dicts:
                 self.log_dict(d, sync_dist=True)
 
-        return {"val_loss": loss}
+        return {"valid/loss": loss}
 
     def _compute_loss(self, batch):
         # torch.cuda.empty_cache()
