@@ -17,8 +17,8 @@ class MaskedLanguageModelConfig(BaseModel):
     eps: float
     num_training_steps: int
     num_warmup_steps: int
-    freeze: bool
-    initial_mask_percentage: float
+    freeze: bool = False
+    initial_mask_percentage: Optional[float] = None
     mask_percentage: float
     max_length: int
     position_embedding_type: str
