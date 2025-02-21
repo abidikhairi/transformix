@@ -30,3 +30,6 @@ class LightningTrainerConfig(BaseModel):
     max_time: Optional[Union[str, None]]  # Allowing None or string
     val_check_interval: int
     log_every_n_steps: int
+    enable_model_summary: Optional[bool] = True
+    enable_progress_bar: Optional[bool] = True
+
