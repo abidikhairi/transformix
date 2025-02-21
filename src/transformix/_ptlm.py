@@ -293,8 +293,9 @@ class TransformixProteinTextLanguageModel(pl.LightningModule):
             labels.view(-1)
         )
         
-        self.log('valid/loss', loss)
-        self.log('valid/perplexity', loss.exp())
+        # sync_dist=True: synchronize logging between devices (in case of multi-gpu training)
+        self.log('train/loss', loss)
+        self.log('train/perplexity', loss.exp())
         
         return {"loss": loss}
 
@@ -324,8 +325,9 @@ class TransformixProteinTextLanguageModel(pl.LightningModule):
             labels.view(-1)
         )
         
-        self.log('valid/loss', loss)
-        self.log('valid/perplexity', loss.exp())
+        # sync_dist=True: synchronize logging between devices (in case of multi-gpu training)
+        self.log('valid/loss', loss, sync_dist=True)
+        self.log('valid/perplexity', loss.exp(), sync_dist=True)
         
         return {"loss": loss}
 
