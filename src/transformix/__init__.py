@@ -11,3 +11,11 @@ from transformix._distillation import TransformixDistill
 from transformix.lm_base import (
     LMBaseForMaskedLM
 )
+from transformix._ptlm_configuration import (
+    ProteinTextLMConfiguration,
+    ProteinTextAdapterConfiguration
+)
+from transformix._ptlm import (
+    ProteinTextLanguageModel,
+    TransformixProteinTextLanguageModel
+)

@@ -9,3 +9,7 @@ from transformix.cmdline._distillation import (
 from transformix.cmdline._clm import (
     clm
 )
+
+from transformix.cmdline._ptlm import (
+    ptlm
+)

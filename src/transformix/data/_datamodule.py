@@ -5,7 +5,8 @@ from pytorch_lightning.utilities.types import TRAIN_DATALOADERS, EVAL_DATALOADER
 from transformers import PreTrainedTokenizer, DataCollatorWithPadding, AutoTokenizer
 from torch.utils.data import DataLoader
 
-from transformix.data import HuggingFaceDataset, ArrowCSVDataset
+from transformix.data import HuggingFaceDataset, LanguageModelingArrowDataset
+from transformix.data._arrow_datasets import ProteinTextLanguageModelingArrowDataset
 
 
 class UnsupervisedHuggingfaceDataModule(pl.LightningDataModule):
@@ -75,21 +76,22 @@ class UnsupervisedHuggingfaceDataModule(pl.LightningDataModule):
 
 class UnsupervisedArrowCSVDataModule(pl.LightningDataModule):
 
-    train_data: ArrowCSVDataset
-    valid_data: ArrowCSVDataset
-    test_data: ArrowCSVDataset
+    train_data: LanguageModelingArrowDataset
+    valid_data: LanguageModelingArrowDataset
+    test_data: LanguageModelingArrowDataset
 
-    def __init__(self,
-                 base_dir: str,
-                 tokenizer: Union[PreTrainedTokenizer, str],
-                 batch_size: int = 64,
-                 num_proc: int = 4,
-                 max_sequence_length: int = 512,
-                 sequence_column_name: str = "Sequence",
-                 file_ext: str = 'csv',
-                 sep: str = ',',
-                 mlm: bool = True
-                 ):
+    def __init__(
+        self,
+        base_dir: str,
+        tokenizer: Union[PreTrainedTokenizer, str],
+        batch_size: int = 64,
+        num_proc: int = 4,
+        max_sequence_length: int = 512,
+        sequence_column_name: str = "Sequence",
+        file_ext: str = 'csv',
+        sep: str = ',',
+        mlm: bool = True
+    ):
         super().__init__()
 
         self._base_dir = base_dir
@@ -127,7 +129,7 @@ class UnsupervisedArrowCSVDataModule(pl.LightningDataModule):
         return self._get_dataloader(self.test_data)
 
     def _load_arrow_dataset(self, split: Literal['train', 'validation', 'test']):
-        return ArrowCSVDataset(
+        return LanguageModelingArrowDataset(
             base_dir=self._base_dir,
             tokenizer=self._tokenizer,
             dataset_split=split,
@@ -146,3 +148,86 @@ class UnsupervisedArrowCSVDataModule(pl.LightningDataModule):
             num_workers=self._num_proc,
             collate_fn=self.data_collator
         )
+
+
+class PorteinTextLanguageModelingDataModule(pl.LightningDataModule):
+    
+    train_data: ProteinTextLanguageModelingArrowDataset
+    valid_data: ProteinTextLanguageModelingArrowDataset
+    test_data: ProteinTextLanguageModelingArrowDataset
+    
+    def __init__(
+        self,
+        base_dir: str,
+        protein_tokenizer: Union[PreTrainedTokenizer, str],
+        text_tokenizer: Union[PreTrainedTokenizer, str],
+        max_protein_length: int = 512,
+        max_text_length: int = 64,
+        target_column_name: str = "Target",
+        instruction_column_name: str = "Instruction",
+        protein_column_name: str = "Protein",
+        file_ext: str = 'csv',
+        sep: str = ',',
+        batch_size: int = 64,
+        num_proc: int = 4,
+    ):
+        super().__init__()
+        
+        self._base_dir: str = base_dir
+        self._max_protein_length: int = max_protein_length
+        self._max_text_length: int = max_text_length
+        self._target_column_name: str = target_column_name
+        self._instruction_column_name: str = instruction_column_name
+        self._protein_column_name: str = protein_column_name
+        self._file_ext: str = file_ext
+        self._sep: str = sep
+        self._batch_size: int = batch_size
+        self._num_proc: int = num_proc
+        
+        if isinstance(protein_tokenizer, str):
+            self._protein_tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(protein_tokenizer)
+        else:
+            self._protein_tokenizer: PreTrainedTokenizer = protein_tokenizer
+        
+        if isinstance(text_tokenizer, str):
+            self._text_tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(text_tokenizer)
+        else:
+            self._text_tokenizer: PreTrainedTokenizer = text_tokenizer
+
+    
+    def setup(self, stage: str = 'train') -> None:
+        self.train_data = self._load_arrow_dataset('train')
+        self.valid_data = self._load_arrow_dataset('validation')
+        self.test_data = self._load_arrow_dataset('test')
+    
+    def _load_arrow_dataset(self, split: Literal['train', 'validation', 'test']):
+        return ProteinTextLanguageModelingArrowDataset(
+            base_dir=self._base_dir,
+            protein_tokenizer=self._protein_tokenizer,
+            text_tokenizer=self._text_tokenizer,
+            max_protein_length=self._max_protein_length,
+            max_text_length=self._max_text_length,
+            dataset_split=split,
+            target_column_name=self._target_column_name,
+            instruction_column_name=self._instruction_column_name,
+            protein_column_name=self._protein_column_name,
+            file_ext=self._file_ext,
+            sep=self._sep
+        )
+    
+    def _get_dataloader(self, dataset: HuggingFaceDataset, do_shuffle=False):
+        return DataLoader(
+            dataset=dataset,
+            batch_size=self._batch_size,
+            shuffle=do_shuffle,
+            num_workers=self._num_proc,
+        )
+    
+    def train_dataloader(self) -> TRAIN_DATALOADERS:
+        return self._get_dataloader(self.train_data, do_shuffle=True)
+
+    def val_dataloader(self) -> EVAL_DATALOADERS:
+        return self._get_dataloader(self.valid_data)
+
+    def test_dataloader(self) -> EVAL_DATALOADERS:
+        return self._get_dataloader(self.test_data)
