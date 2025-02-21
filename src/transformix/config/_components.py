@@ -32,4 +32,4 @@ class LightningTrainerConfig(BaseModel):
     log_every_n_steps: int
     enable_model_summary: Optional[bool] = True
     enable_progress_bar: Optional[bool] = True
-
+    strategy: Optional[str] = 'ddp_find_unused_parameters_true'
